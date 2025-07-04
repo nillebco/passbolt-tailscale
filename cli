@@ -1,0 +1,61 @@
+#!/bin/bash
+# visit https://dash.cloudflare.com/profile/api-tokens to add the ipv6 address to the api token
+
+load_dotenv() {
+    if [ -f .env ]; then
+        source .env
+    fi
+}
+
+# Function to show usage
+show_usage() {
+    echo "Usage: $0 <subcommand> [options]"
+    echo ""
+    echo "Available subcommands:"
+    echo "  tf <terraform-subcommand>  - Run terraform with specified subcommand"
+    echo "  apply                      - Run terraform apply (legacy command)"
+    echo "  help                       - Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  $0 tf plan"
+    echo "  $0 tf apply"
+    echo "  $0 tf destroy"
+    echo "  $0 apply"
+}
+
+# Check if subcommand is provided
+if [ $# -eq 0 ]; then
+    echo "Error: No subcommand provided"
+    show_usage
+    exit 1
+fi
+
+# Get the subcommand
+subcommand="$1"
+shift
+
+# Handle different subcommands
+case "$subcommand" in
+    "tf")
+        if [ $# -eq 0 ]; then
+            echo "Error: No terraform subcommand provided"
+            echo "Usage: $0 tf <terraform-subcommand>"
+            exit 1
+        fi
+        pushd terraform
+        terraform "$@" -var-file=cloudflare.tfvars -var-file=hetzner.tfvars
+        popd
+        ;;
+    ssh)
+        load_dotenv
+        ssh -i $ssh_key_file devops@$(cd terraform && terraform output -raw service_ip)
+        ;;
+    "help"|"-h"|"--help")
+        show_usage
+        ;;
+    *)
+        echo "Error: Unknown subcommand '$subcommand'"
+        show_usage
+        exit 1
+        ;;
+esac

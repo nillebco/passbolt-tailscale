@@ -1,0 +1,34 @@
+#cloud-config
+users:
+  - name: devops
+    groups: users, admin
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${SSH_KEY_CONTENT}
+package_update: true
+package_upgrade: true
+packages:
+  - fail2ban
+  - ufw
+  - podman
+runcmd:
+  - printf "[sshd]\nenabled = true\nbanaction = iptables-multiport" > /etc/fail2ban/jail.local
+  - systemctl enable ssh
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
+  - ufw allow 'OpenSSH'
+  - ufw allow 41641/udp
+  - ufw enable
+  - sed -ie '/^PermitRootLogin/s/^.*$/PermitRootLogin no/' /etc/ssh/sshd_config
+  - sed -ie '/^PasswordAuthentication/s/^.*$/PasswordAuthentication no/' /etc/ssh/sshd_config
+  - sed -ie '/^X11Forwarding/s/^.*$/X11Forwarding no/' /etc/ssh/sshd_config
+  - sed -ie '/^#MaxAuthTries/s/^.*$/MaxAuthTries 2/' /etc/ssh/sshd_config
+  - sed -ie '/^#AllowTcpForwarding/s/^.*$/AllowTcpForwarding yes/' /etc/ssh/sshd_config
+  - sed -ie '/^#AllowAgentForwarding/s/^.*$/AllowAgentForwarding no/' /etc/ssh/sshd_config
+  - sed -ie '/^#AuthorizedKeysFile/s/^.*$/AuthorizedKeysFile .ssh/authorized_keys/' /etc/ssh/sshd_config
+  - sed -i '$a AllowUsers devops' /etc/ssh/sshd_config
+  - systemctl restart ssh
+  - sudo systemctl enable --now cni-dhcp.socket
+  - curl -fsSL https://tailscale.com/install.sh | sh
+  - reboot
