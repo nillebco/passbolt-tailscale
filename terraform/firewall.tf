@@ -2,14 +2,14 @@ resource "hcloud_firewall" "allow_ssh_from_home" {
   count = var.my_ip_address == null ? 0 : 1
   name = "allow-ssh-from-home"
 
-  rule {
-    direction = "in"
-    protocol  = "tcp"
-    port      = "22"
-    source_ips = [
-      "${var.my_ip_address}/32"
-    ]
-  }
+  # rule {
+  #   direction = "in"
+  #   protocol  = "tcp"
+  #   port      = "22"
+  #   source_ips = [
+  #     "${var.my_ip_address}/32"
+  #   ]
+  # }
 
   rule {
     direction = "in"

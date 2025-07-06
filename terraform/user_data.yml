@@ -8,10 +8,29 @@ users:
       - ${SSH_KEY_CONTENT}
 package_update: true
 package_upgrade: true
+write_files:
+- encoding: b64
+  content: ${B64_DEVOPS_CONTENT}
+  owner: devops:devops
+  path: /home/devops/devops
+  permissions: '0755'
+write_files:
+- encoding: b64
+  content: ${B64_DOCKER_COMPOSE_CONTENT}
+  owner: devops:devops
+  path: /home/devops/docker-compose.yaml
+  permissions: '0644'
+write_files:
+- encoding: b64
+  content: ${B64_DOTENV_CONTENT}
+  owner: devops:devops
+  path: /home/devops/.env
+  permissions: '0600'
 packages:
   - fail2ban
   - ufw
   - podman
+  - iptables-persistent
 runcmd:
   - printf "[sshd]\nenabled = true\nbanaction = iptables-multiport" > /etc/fail2ban/jail.local
   - systemctl enable ssh
@@ -31,4 +50,14 @@ runcmd:
   - systemctl restart ssh
   - sudo systemctl enable --now cni-dhcp.socket
   - curl -fsSL https://tailscale.com/install.sh | sh
+  - curl -LsSf https://astral.sh/uv/install.sh | sh
+  - iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 4433
+  - iptables-save > /etc/iptables/rules.v4
+  - su - devops -c "tailscale up --authkey=${TAILSCALE_AUTH_KEY}"
+  - su - devops -c "tailscale cert ${SERVICE_NAME}.${TAILSCALE_DOMAIN}"
+  - su - devops -c "uv venv"
+  - su - devops -c "uv pip install podman-compose"
+  - su - devops -c "chmod 644 safe.tail961085.ts.net.key"
+  - su - devops -c "uvx podman-compose up -d"
+  - su - devops -c "podman exec devops_passbolt_1 bin/cake passbolt register_user -u ivo@nilleb.com -f Ivo -l "BS" -r admin"
   - reboot

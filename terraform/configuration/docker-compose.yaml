@@ -1,0 +1,44 @@
+services:
+  db:
+    image: docker.io/library/postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "passbolt"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - database_volume:/var/lib/postgresql/data
+
+  passbolt:
+    image: docker.io/passbolt/passbolt:latest-ce-non-root
+    restart: unless-stopped
+    tty: true
+    depends_on:
+      - db
+    environment:
+      APP_FULL_BASE_URL: https://safe.${DOMAIN_NAME}
+      DATASOURCES_DEFAULT_DRIVER: Cake\Database\Driver\Postgres
+      DATASOURCES_DEFAULT_ENCODING: "utf8"
+      DATASOURCES_DEFAULT_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/passbolt?schema=passbolt"
+      EMAIL_TRANSPORT_DEFAULT_HOST: ${EMAIL_TRANSPORT_DEFAULT_HOST}
+      EMAIL_TRANSPORT_DEFAULT_USERNAME: ${EMAIL_TRANSPORT_DEFAULT_USERNAME}
+      EMAIL_TRANSPORT_DEFAULT_PASSWORD: ${EMAIL_TRANSPORT_DEFAULT_PASSWORD}
+      EMAIL_TRANSPORT_DEFAULT_PORT: ${EMAIL_TRANSPORT_DEFAULT_PORT}
+      EMAIL_TRANSPORT_DEFAULT_TLS: "true"
+    volumes:
+      - gpg_volume:/etc/passbolt/gpg
+      - jwt_volume:/etc/passbolt/jwt
+      - ./safe.${DOMAIN_NAME}.crt:/etc/ssl/certs/certificate.crt:ro,Z
+      - ./safe.${DOMAIN_NAME}.key:/etc/ssl/certs/certificate.key:ro,Z
+      - ./safe.${DOMAIN_NAME}.crt:/etc/passbolt/certs/certificate.crt:ro,Z
+      - ./safe.${DOMAIN_NAME}.key:/etc/passbolt/certs/certificate.key:ro,Z
+    command: >
+      bash -c "/usr/bin/wait-for.sh -t 0 db:5432 -- /docker-entrypoint.sh"
+    ports:
+      - 8080:8080
+      - 4433:4433
+
+volumes:
+  database_volume:
+  gpg_volume:
+  jwt_volume:

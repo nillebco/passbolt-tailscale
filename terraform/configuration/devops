@@ -1,0 +1,33 @@
+load_dotenv() {
+  local env_file=".env"
+  if [ -f "$env_file" ]; then
+    export $(grep -v '^#' "$env_file" | xargs)
+  else
+    echo "Error: .env file not found"
+    exit 1
+  fi
+}
+
+case "$1" in
+  "install")
+    load_dotenv
+    tailscale up --authkey=${TAILSCALE_AUTH_KEY}
+    tailscale cert ${SERVICE_NAME}.${DOMAIN_NAME}
+    uv venv
+    uv pip install podman-compose
+    # horrible but everything I tried to export these files to the rootless container didn't work
+    chmod 644 safe.tail961085.ts.net.key
+    uvx podman-compose up -d
+    podman exec devops_passbolt_1 bin/cake passbolt register_user -u ivo@nilleb.com -f Ivo -l "BS" -r admin
+    ;;
+  "up")
+    uvx podman-compose up -d
+    ;;
+  "down")
+    uvx podman-compose down
+    ;;
+  "restart")
+    uvx podman-compose down
+    uvx podman-compose up -d
+    ;;
+esac

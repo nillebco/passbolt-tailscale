@@ -57,5 +57,12 @@ variable "ssh_key_path" {
 }
 
 variable "service_name" {
-  default = "blabla"
+  default = "safe"
+}
+
+variable "tailscale_domain" {
+}
+
+variable "tailscale_auth_key" {
+  sensitive = true
 }

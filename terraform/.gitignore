@@ -2,3 +2,4 @@
 hetzner.tfvars
 cloudflare.tfvars
 terraform.tfstate*
+tailscale.tfvars
