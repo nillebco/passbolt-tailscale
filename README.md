@@ -20,6 +20,11 @@ Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
 Nmap done: 1 IP address (0 hosts up) scanned in 8.04 seconds
 ```
 
+## why this is cool
+
+- your vault is accessible using only tailscale, no other network exposition
+- we use podman rootless
+
 ## requirements
 
 - a sendgrid api key
@@ -30,3 +35,4 @@ Nmap done: 1 IP address (0 hosts up) scanned in 8.04 seconds
 ## limitations
 
 - the loadbalancer is useless - every node has its own database - set instances to 1
+- there is no backup set up; I'd like to add a periodical export of the podman volumes and certificates
