@@ -53,6 +53,7 @@ runcmd:
   - curl -LsSf https://astral.sh/uv/install.sh | sh
   - iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 4433
   - iptables-save > /etc/iptables/rules.v4
+  - loginctl enable-linger 'devops'
   - su - devops -c "tailscale up --authkey=${TAILSCALE_AUTH_KEY}"
   - su - devops -c "tailscale cert ${SERVICE_NAME}.${TAILSCALE_DOMAIN}"
   - su - devops -c "uv venv"
