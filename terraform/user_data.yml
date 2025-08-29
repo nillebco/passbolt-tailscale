@@ -58,7 +58,7 @@ runcmd:
   - su - devops -c "tailscale cert ${SERVICE_NAME}.${TAILSCALE_DOMAIN}"
   - su - devops -c "uv venv"
   - su - devops -c "uv pip install podman-compose"
-  - su - devops -c "chmod 644 safe.tail961085.ts.net.key"
+  - su - devops -c "chmod 644 ${SERVICE_NAME}.${TAILSCALE_DOMAIN}.key"
   - su - devops -c "uvx podman-compose up -d"
-  - su - devops -c "podman exec devops_passbolt_1 bin/cake passbolt register_user -u ivo@nilleb.com -f Ivo -l "BS" -r admin"
+  - su - devops -c "podman exec devops_passbolt_1 bin/cake passbolt register_user -u ${ADMIN_EMAIL} -f Unkwown -l Unkwown -r admin"
   - reboot

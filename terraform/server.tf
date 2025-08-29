@@ -15,6 +15,7 @@ resource "hcloud_server" "podman" {
     TAILSCALE_AUTH_KEY = var.tailscale_auth_key
     TAILSCALE_DOMAIN = var.tailscale_domain
     SERVICE_NAME = var.service_name
+    ADMIN_EMAIL = var.admin_email
     B64_DEVOPS_CONTENT = base64encode(file("${path.module}/configuration/devops"))
     B64_DOCKER_COMPOSE_CONTENT = base64encode(file("${path.module}/configuration/docker-compose.yaml"))
     B64_DOTENV_CONTENT = base64encode(file("${path.module}/configuration/.env"))

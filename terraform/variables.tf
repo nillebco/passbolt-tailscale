@@ -34,10 +34,6 @@ variable "ip_range" {
   default = "10.0.1.0/24"
 }
 
-variable "ipv6_only" {
-  default = "20"
-}
-
 variable "my_ip_address" {
   default = null
 }
@@ -58,6 +54,9 @@ variable "ssh_key_path" {
 
 variable "service_name" {
   default = "safe"
+}
+
+variable "admin_email" {
 }
 
 variable "tailscale_domain" {
