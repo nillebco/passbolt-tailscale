@@ -16,7 +16,7 @@ services:
     depends_on:
       - db
     environment:
-      APP_FULL_BASE_URL: https://safe.${DOMAIN_NAME}
+      APP_FULL_BASE_URL: https://${SERVICE_NAME}.${DOMAIN_NAME}
       DATASOURCES_DEFAULT_DRIVER: Cake\Database\Driver\Postgres
       DATASOURCES_DEFAULT_ENCODING: "utf8"
       DATASOURCES_DEFAULT_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/passbolt?schema=passbolt"
@@ -28,10 +28,10 @@ services:
     volumes:
       - gpg_volume:/etc/passbolt/gpg
       - jwt_volume:/etc/passbolt/jwt
-      - ./safe.${DOMAIN_NAME}.crt:/etc/ssl/certs/certificate.crt:ro,Z
-      - ./safe.${DOMAIN_NAME}.key:/etc/ssl/certs/certificate.key:ro,Z
-      - ./safe.${DOMAIN_NAME}.crt:/etc/passbolt/certs/certificate.crt:ro,Z
-      - ./safe.${DOMAIN_NAME}.key:/etc/passbolt/certs/certificate.key:ro,Z
+      - ./${SERVICE_NAME}.${DOMAIN_NAME}.crt:/etc/ssl/certs/certificate.crt:ro,Z
+      - ./${SERVICE_NAME}.${DOMAIN_NAME}.key:/etc/ssl/certs/certificate.key:ro,Z
+      - ./${SERVICE_NAME}.${DOMAIN_NAME}.crt:/etc/passbolt/certs/certificate.crt:ro,Z
+      - ./${SERVICE_NAME}.${DOMAIN_NAME}.key:/etc/passbolt/certs/certificate.key:ro,Z
     command: >
       bash -c "/usr/bin/wait-for.sh -t 0 db:5432 -- /docker-entrypoint.sh"
     ports:
