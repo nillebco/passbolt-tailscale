@@ -16,9 +16,9 @@ case "$1" in
     uv venv
     uv pip install podman-compose
     # horrible but everything I tried to export these files to the rootless container didn't work
-    chmod 644 safe.tail961085.ts.net.key
+    chmod 644 ${SERVICE_NAME}.${DOMAIN_NAME}.key
     uvx podman-compose up -d
-    podman exec devops_passbolt_1 bin/cake passbolt register_user -u ivo@nilleb.com -f Ivo -l "BS" -r admin
+    podman exec devops_passbolt_1 bin/cake passbolt register_user -u $SUPER_ADMIN_EMAIL -f $SUPER_ADMIN_FIRST -l $SUPER_ADMIN_LAST -r admin
     ;;
   "up")
     uvx podman-compose up -d
